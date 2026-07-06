@@ -49,3 +49,71 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
    
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+.env
+
+# Jupyter Notebooks (если используешь)
+.ipynb_checkpoints/
+*.ipynb
+
+# VS Code (если пользуешься)
+.vscode/
+
+# PyCharm (если пользуешься)
+.idea/
+
+# OS junk files
+.DS_Store
+Thumbs.db
+
+# MyPy
+.mypy_cache/
+
+# Pytest
+.pytest_cache/
+
+# Secret keys and local configs
+config.py
+secrets.py
+credentials.py
+*.key
+*.pem
+*.crt
+.env.local
+.env.*.local
+
+# Data files (не заливаем большие датасеты на GitHub)
+*.csv
+*.xlsx
+*.json
+*.parquet
+*.h5
+*.pkl
+*.joblib
+*.zip
+*.tar.gz
+
+# Models (обученные модели весят много)
+*.h5
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.pb
+*.tflite
+
+# Logs
+*.log
+logs/
+
+# Streamlit (если будешь использовать)
+.streamlit/
+
+# FastAPI / uvicorn
+__pycache__/
+*.pyc
+.uvicorn/
