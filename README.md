@@ -14,5 +14,3 @@ Stack by the moment:
 3)Backend: FastAPI
 
 Made by Daniel Kruchkov
-
-![Python](https://img.shields.io/badge/Python-3.11-blue)
