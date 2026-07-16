@@ -13,10 +13,13 @@ df_for_search = df.drop(['Unnamed: 0', 'popularity', 'duration_ms', 'explicit', 
                         'instrumentalness', 'liveness', 'valence', 'tempo', 'time_signature',
                         'track_genre'],axis=1)
 df_for_search = df_for_search['track_name'].str.lower()
-
+median_char = df_for_similarity_algo.median()
 #--------------------------------------------------------------
 # Step 2: Searching row with characteristics for current song
 #--------------------------------------------------------------
+
+def GetUser_TrackName():
+    return input('Make sure track name is correct!!!: ')
 
 def find_track(track_name):
     character_data = []
@@ -35,32 +38,30 @@ def find_track(track_name):
         artist_user_chose = character_data[int(input(f'Select an artist: from 1-{len(character_data)}: ')) - 1]
         print(f'{artist_user_chose} --- {track_name}')
         data_list = data_list[(data_list['artists'].str.lower() == artist_user_chose.lower())]
-        print(data_list.columns)
+        data_list = data_list.head(1)
         return df_for_similarity_algo.loc[data_list.index]
     elif len(character_data) == 1:
         artist_user_chose = character_data[0]
         print(f'{artist_user_chose} --- {track_name}')
         data_list = data_list[(data_list['artists'].str.lower() == artist_user_chose.lower())]
+        data_list = data_list.head(1)
         return df_for_similarity_algo.loc[data_list.index]
     else:
         print("Ooops, it`s look like we didn`t found this song!... Sorry")
         return None
+#------------------------------------------------------------
+# Step 3: Searching an important data (what characteristics more unique)
+#-------------------------------------------------------------
+def find_important_data(track_row):
+    print(track_row.shape)
+    track_row = track_row.squeeze()
+    for i in ['danceability', 'energy', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']:
+        difference_med = round(abs(track_row.loc[i] - median_char[i]),4)
+        print(difference_med)
 
 
-
-def find_important_data(track_name):
-    for columns in df_for_similarity_algo:
-        print(columns)
-
-def GetUser_TrackName():
-    TrackName = input('Make sure track name is correct!!!: ')
-    return TrackName
-
-
-track = find_track(GetUser_TrackName())
-#find_important_data(1)
-print(track)
-print(df_for_similarity_algo.shape)
+track_row = find_track(GetUser_TrackName())
+find_important_data(track_row)
 
 # noinspection PyTypeChecker
 # - Just for Analyze
