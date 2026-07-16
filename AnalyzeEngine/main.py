@@ -19,12 +19,26 @@ df_for_search = df_for_search['track_name'].str.lower()
 #--------------------------------------------------------------
 
 def find_track(track_name):
+    character_data = []
     track_name = track_name.lower()
-    data_list = df[df['track_name'].str.contains(track_name)]
+    data_list = df_for_work_with_track[df_for_work_with_track['track_name'].str.contains(track_name,regex=False)]
     if data_list.dropna().empty:
         print('Error!')
-    print(data_list)
-    return data_list
+    for index, row in data_list.iterrows():
+        character_data.append(row['artists'])
+    character_data = set(character_data)
+    character_data = list(character_data)
+    for index, i in enumerate(character_data):
+        print(index+1, i)
+    if len(character_data) != 0:
+        print('We found some artists with similar song name! Please choose what artist do you mean: ')
+        artist_user_chose = character_data[int(input(f'Select an artist: from 1-{len(character_data)}: ')) - 1]
+        print(f'{artist_user_chose} --- {track_name}')
+        data_list = data_list[(data_list['artists'].str.lower() == artist_user_chose.lower()) & (data_list['track_name'].str.strip().str.lower() == track_name)]
+        return data_list
+    else:
+        print("Ooops, it`s look like we didn`t found this song!... Sorry")
+        return None
 
 
 
@@ -36,9 +50,10 @@ def GetUser_TrackName():
     TrackName = input('Make sure track name is correct!!!: ')
     return TrackName
 
-track = find_track(GetUser_TrackName())
-find_important_data(1)
 
+track = find_track(GetUser_TrackName())
+#find_important_data(1)
+print(track)
 
 # noinspection PyTypeChecker
 # - Just for Analyze
