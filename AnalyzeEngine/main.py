@@ -1,5 +1,5 @@
 import pandas as pd
-#import numpy as np - don`t need rn
+from sklearn.metrics.pairwise import cosine_similarity as cos_sim
 
 #----------------------------------------------
 # Step 1: Creating and Reforming DataFrame
@@ -55,10 +55,12 @@ def find_track(track_name):
 def find_important_data(track_row):
     print(track_row.shape)
     track_row = track_row.squeeze()
+    charactersitics = []
     for i in ['danceability', 'energy', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']:
         difference_med = round(abs(track_row.loc[i] - median_char[i]),4)
-        print(difference_med)
-
+        charactersitics.append((float(difference_med),i))
+    print(charactersitics)
+    return charactersitics
 
 track_row = find_track(GetUser_TrackName())
 find_important_data(track_row)
