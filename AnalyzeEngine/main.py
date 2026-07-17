@@ -1,6 +1,7 @@
 import pandas as pd
-from narwhals.testing.asserts import series
+import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity as cos_sim
+from sklearn.preprocessing import MinMaxScaler as MM_scale
 
 #----------------------------------------------
 # Step 1: Creating and Reforming DataFrame
@@ -14,6 +15,10 @@ df_for_search = df.drop(['Unnamed: 0', 'popularity', 'duration_ms', 'explicit', 
                         'instrumentalness', 'liveness', 'valence', 'tempo', 'time_signature',
                         'track_genre'],axis=1)
 df_for_search = df_for_search['track_name'].str.lower()
+
+scaler = MM_scale()
+scaled_df = scaler.fit_transform(df_for_similarity_algo)
+scaled_df = pd.DataFrame(scaled_df, columns=df_for_similarity_algo.columns, index=df_for_similarity_algo.index)
 #--------------------------------------------------------------
 # Step 2: Searching row with characteristics for current song
 #--------------------------------------------------------------
@@ -53,15 +58,24 @@ def find_track(track_name):
 #------------------------------------------------------------
 # Step 3: Searching for songs with similar sound (using scikit-learn)
 #-------------------------------------------------------------
-def find_similar_song(charactersitics):
+def find_similar_song(characteristics):
     search_df = df_for_similarity_algo
-    cos = cos_sim(charactersitics,search_df.values)
-    print(cos)
-
+    scaled_characteristics = scaler.transform(characteristics)
+    cos = cos_sim(scaled_characteristics,search_df.values)
+    cos = cos.flatten().tolist()
+    cos = pd.Series(cos, index=df_for_similarity_algo.index).drop(track_row.index)
+    cos = cos.sort_values(ascending=False)
+    return cos.head(5) # just return characteristics not a song name [FIX]
 
 track_row = find_track(GetUser_TrackName())
 #imp_data = find_important_data(track_row)
-find_similar_song(track_row)
+Song_index_list = []
+for index, value in find_similar_song(track_row).items():
+    Song_index_list.append(index)
+Result_list = []
+for index in Song_index_list:
+    Result_list.append(df_for_work_with_track['track_name'].loc[index])
+print(*Result_list)
 
 # noinspection PyTypeChecker
 # - Just for Analyze
