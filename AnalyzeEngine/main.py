@@ -1,4 +1,5 @@
 import pandas as pd
+from narwhals.testing.asserts import series
 from sklearn.metrics.pairwise import cosine_similarity as cos_sim
 
 #----------------------------------------------
@@ -13,7 +14,6 @@ df_for_search = df.drop(['Unnamed: 0', 'popularity', 'duration_ms', 'explicit', 
                         'instrumentalness', 'liveness', 'valence', 'tempo', 'time_signature',
                         'track_genre'],axis=1)
 df_for_search = df_for_search['track_name'].str.lower()
-median_char = df_for_similarity_algo.median()
 #--------------------------------------------------------------
 # Step 2: Searching row with characteristics for current song
 #--------------------------------------------------------------
@@ -49,21 +49,19 @@ def find_track(track_name):
     else:
         print("Ooops, it`s look like we didn`t found this song!... Sorry")
         return None
+
 #------------------------------------------------------------
-# Step 3: Searching an important data (what characteristics more unique)
+# Step 3: Searching for songs with similar sound (using scikit-learn)
 #-------------------------------------------------------------
-def find_important_data(track_row):
-    print(track_row.shape)
-    track_row = track_row.squeeze()
-    charactersitics = []
-    for i in ['danceability', 'energy', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']:
-        difference_med = round(abs(track_row.loc[i] - median_char[i]),4)
-        charactersitics.append((float(difference_med),i))
-    print(charactersitics)
-    return charactersitics
+def find_similar_song(charactersitics):
+    search_df = df_for_similarity_algo
+    cos = cos_sim(charactersitics,search_df.values)
+    print(cos)
+
 
 track_row = find_track(GetUser_TrackName())
-find_important_data(track_row)
+#imp_data = find_important_data(track_row)
+find_similar_song(track_row)
 
 # noinspection PyTypeChecker
 # - Just for Analyze
