@@ -45,7 +45,7 @@ def find_track(track_name):
         data_list = data_list[(data_list['artists'].str.lower() == artist_user_chose.lower())]
         data_list = data_list.head(1)
         return df_for_similarity_algo.loc[data_list.index]
-    elif len(character_data) == 1:
+    elif len(character_data) == 1:   # - Fix this (remake by other more user-choice friendly method)
         artist_user_chose = character_data[0]
         print(f'{artist_user_chose} --- {track_name}')
         data_list = data_list[(data_list['artists'].str.lower() == artist_user_chose.lower())]
@@ -65,8 +65,10 @@ def find_similar_song(characteristics):
     cos = cos.flatten().tolist()
     cos = pd.Series(cos, index=df_for_similarity_algo.index).drop(track_row.index)
     cos = cos.sort_values(ascending=False)
-    return cos.head(5) # just return characteristics not a song name [FIX]
+    return cos.head(5)
 
+
+### - - - - - - Calling Functions[0.1V] - - - - - - -
 track_row = find_track(GetUser_TrackName())
 #imp_data = find_important_data(track_row)
 Song_index_list = []
@@ -76,15 +78,4 @@ Result_list = []
 for index in Song_index_list:
     Result_list.append(df_for_work_with_track['track_name'].loc[index])
 print(*Result_list)
-
-# noinspection PyTypeChecker
-# - Just for Analyze
-#print(df.columns)
-# print()
-# # noinspection PyTypeChecker
-# print(df_for_similarity_algo.columns)
-# print()
-# # noinspection PyTypeChecker
-# print(df_for_work_with_track.columns)
-# print()
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - -
