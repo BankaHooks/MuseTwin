@@ -8,13 +8,14 @@ from sklearn.preprocessing import MinMaxScaler as MM_scale
 #----------------------------------------------
 #reforming data set for more flexibility for future
 df = pd.DataFrame(pd.read_csv('spotify_dataset.csv'))
-df_for_similarity_algo = df.drop(['Unnamed: 0','time_signature','track_genre','duration_ms','artists','popularity','track_id','track_name','album_name','key','mode','explicit'],axis=1).apply(pd.to_numeric)
+df_for_similarity_algo = df.drop(['Unnamed: 0','track_id','track_genre','artists','album_name','track_name','explicit','duration_ms','time_signature'],axis=1).apply(pd.to_numeric)
 df_for_work_with_track = df.drop(['Unnamed: 0','track_id','time_signature','duration_ms','popularity'],axis=1)
-df_for_search = df.drop(['Unnamed: 0', 'popularity', 'duration_ms', 'explicit', 'danceability', 'energy',
-                        'key', 'loudness', 'mode', 'speechiness', 'acousticness',
-                        'instrumentalness', 'liveness', 'valence', 'tempo', 'time_signature',
-                        'track_genre'],axis=1)
-df_for_search = df_for_search['track_name'].str.lower()
+#df_for_search = df.drop(['Unnamed: 0', 'popularity', 'duration_ms', 'explicit', 'danceability', 'energy',
+#                        'key', 'loudness', 'mode', 'speechiness', 'acousticness',
+#                        'instrumentalness', 'liveness', 'valence', 'tempo', 'time_signature',
+#                        'track_genre'],axis=1)
+#df_for_search = df_for_search['track_name'].str.lower()
+track_genre = df['track_genre']
 
 scaler = MM_scale()
 scaled_df = scaler.fit_transform(df_for_similarity_algo)
@@ -29,7 +30,7 @@ def GetUser_TrackName():
 def find_track(track_name):
     character_data = []
     track_name = track_name.lower()
-    data_list = df_for_work_with_track[df_for_work_with_track['track_name'].str.contains(track_name,regex=False)]
+    data_list = df_for_work_with_track[df_for_work_with_track['track_name'].str.contains(track_name,regex=False,case=False)]
     if data_list.dropna().empty:
         print('Error!')
     for index, row in data_list.iterrows():
@@ -59,23 +60,26 @@ def find_track(track_name):
 # Step 3: Searching for songs with similar sound (using scikit-learn)
 #-------------------------------------------------------------
 def find_similar_song(characteristics):
-    search_df = df_for_similarity_algo
+    seed_genre = df.loc[track_row.index[0] , 'track_genre']
+    same_genre_mask = df['track_genre'] == seed_genre
+    search_df = df_for_similarity_algo[same_genre_mask]
+    filtered_scaled = scaled_df[same_genre_mask]
     scaled_characteristics = scaler.transform(characteristics)
-    cos = cos_sim(scaled_characteristics,search_df.values)
+    cos = cos_sim(scaled_characteristics,filtered_scaled.values)
     cos = cos.flatten().tolist()
-    cos = pd.Series(cos, index=df_for_similarity_algo.index).drop(track_row.index)
+    cos = pd.Series(cos, index=filtered_scaled.index).drop(track_row.index,errors='ignore')
     cos = cos.sort_values(ascending=False)
     return cos.head(5)
 
 
 ### - - - - - - Calling Functions[0.1V] - - - - - - -
 track_row = find_track(GetUser_TrackName())
-#imp_data = find_important_data(track_row)
-Song_index_list = []
-for index, value in find_similar_song(track_row).items():
-    Song_index_list.append(index)
-Result_list = []
-for index in Song_index_list:
-    Result_list.append(df_for_work_with_track['track_name'].loc[index])
-print(*Result_list)
+if track_row is not None:
+    Song_index_list = []
+    for index, value in find_similar_song(track_row).items():
+        Song_index_list.append(index)
+        Result_list = []
+    for index in Song_index_list:
+        Result_list.append(df_for_work_with_track['track_name'].loc[index])
+    print(*Result_list , sep=' , ')
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
