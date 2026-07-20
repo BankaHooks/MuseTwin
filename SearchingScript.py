@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler as MM_scale
 # Step 1: Creating and Reforming DataFrame
 #----------------------------------------------
 #reforming data set for more flexibility for future
-df = pd.DataFrame(pd.read_csv('spotify_dataset.csv'))
+df = pd.read_csv('spotify_dataset.csv')
 df_for_similarity_algo = df.drop(['Unnamed: 0','track_id','track_genre','artists','album_name','track_name','explicit','duration_ms','time_signature'],axis=1).apply(pd.to_numeric)
 df_for_work_with_track = df.drop(['Unnamed: 0','track_id','time_signature','duration_ms','popularity'],axis=1)
 #df_for_search = df.drop(['Unnamed: 0', 'popularity', 'duration_ms', 'explicit', 'danceability', 'energy',
@@ -25,7 +25,8 @@ scaled_df = pd.DataFrame(scaled_df, columns=df_for_similarity_algo.columns, inde
 #--------------------------------------------------------------
 
 def GetUser_TrackName():
-    return input('Make sure track name is correct!!!: ')
+    user_request =  input('Make sure track name is correct!!!: ')
+    return user_request
 
 def find_track(track_name):
     character_data = []
@@ -73,7 +74,7 @@ def find_similar_song(characteristics):
 
 
 ### - - - - - - Calling Functions[0.1V] - - - - - - -
-track_row = find_track(GetUser_TrackName())
+track_row = find_track(TFIDF.user_request)
 if track_row is not None:
     Song_index_list = []
     for index, value in find_similar_song(track_row).items():
