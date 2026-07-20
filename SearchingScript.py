@@ -74,7 +74,7 @@ def find_similar_song(characteristics):
 
 
 ### - - - - - - Calling Functions[0.1V] - - - - - - -
-track_row = find_track(TFIDF.user_request)
+track_row = find_track(GetUser_TrackName())
 if track_row is not None:
     Song_index_list = []
     for index, value in find_similar_song(track_row).items():

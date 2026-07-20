@@ -12,8 +12,7 @@ df = pd.read_csv('spotify_millsongdata.csv').drop(columns=['link'])
 print(df.shape)
 print(df.head())
 print(df.columns)
-user_request = GetUser_TrackName()
-print(user_request)
+
 
 def tf(word,blob):
     return blob.words.count(word)
