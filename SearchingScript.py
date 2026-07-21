@@ -8,6 +8,8 @@ from sklearn.preprocessing import MinMaxScaler as MM_scale
 #----------------------------------------------
 #reforming data set for more flexibility for future
 df = pd.read_csv('spotify_dataset.csv')
+song_text_df = pd.read_csv('spotify_millsongdata.csv').drop(columns=['link'])
+print(song_text_df.head(5))
 df_for_similarity_algo = df.drop(['Unnamed: 0','track_id','track_genre','artists','album_name','track_name','explicit','duration_ms','time_signature'],axis=1).apply(pd.to_numeric)
 df_for_work_with_track = df.drop(['Unnamed: 0','track_id','time_signature','duration_ms','popularity'],axis=1)
 #df_for_search = df.drop(['Unnamed: 0', 'popularity', 'duration_ms', 'explicit', 'danceability', 'energy',
@@ -93,3 +95,20 @@ if track_row is not None:
         Result_list.append(df_for_work_with_track['track_name'].loc[index])
     print(*Result_list , sep=' , ')
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+#-----------------------------------------
+#   TF-IDF algorithm
+#-----------------------------------------
+
+def tf(word,blob):
+    return blob.words.count(word)
+
+def n_containing(word, bloblist):
+    return sum(1 for blob in bloblist if word in blob.words)
+
+def idf(word, bloblist):
+    return math.log(len(bloblist) / (1 + n_containing(word, bloblist)))
+
+def tfidf(word, blob ,bloblist):
+    return tf(word, blob)  * idf(word,bloblist)
