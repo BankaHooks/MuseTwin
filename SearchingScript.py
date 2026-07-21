@@ -31,6 +31,9 @@ def GetUser_TrackName():
 def find_track(track_name):
     character_data = []
     track_name = track_name.lower()
+
+    # Clear data_list from rows withou current song name
+
     data_list = df_for_work_with_track[df_for_work_with_track['track_name'].str.contains(track_name,regex=False,case=False)]
     if data_list.dropna().empty:
         print('Error!')
@@ -38,15 +41,21 @@ def find_track(track_name):
         character_data.append(row['artists'])
     character_data = set(character_data)
     character_data = list(character_data)
+
+    # - User choose a correct artist
     for index, i in enumerate(character_data):
         print(index+1, i)
     if len(character_data) > 1:
         print('We found some artists with similar song name! Please choose what artist do you mean: ')
         artist_user_chose = character_data[int(input(f'Select an artist: from 1-{len(character_data)}: ')) - 1]
         print(f'{artist_user_chose} --- {track_name}')
+
+    # - Search by artist name
+
         data_list = data_list[(data_list['artists'].str.lower() == artist_user_chose.lower())]
         data_list = data_list.head(1)
         return df_for_similarity_algo.loc[data_list.index]
+
     elif len(character_data) == 1:   # - Fix this (remake by other more user-choice friendly method)
         artist_user_chose = character_data[0]
         print(f'{artist_user_chose} --- {track_name}')
