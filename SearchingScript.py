@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity as cos_sim
 from sklearn.preprocessing import MinMaxScaler as MM_scale
+import math
 
 #----------------------------------------------
 # Step 1: Creating and Reforming DataFrame
@@ -26,8 +27,8 @@ scaled_df = pd.DataFrame(scaled_df, columns=df_for_similarity_algo.columns, inde
 # Step 2: Searching row with characteristics for current song
 #--------------------------------------------------------------
 
-def GetUser_TrackName():
-    user_request =  input('Make sure track name is correct!!!: ')
+def Get_User_Input():  # - Collect Song name or a text from song
+    user_request =  input('Give us a song name or a test fragment to search: ')
     return user_request
 
 def find_track(track_name):
@@ -68,6 +69,61 @@ def find_track(track_name):
         print("Ooops, it`s look like we didn`t found this song!... Sorry")
         return None
 
+#-----------------------------------------
+#   TF-IDF algorithm
+#-----------------------------------------
+
+def tf(word,blob):
+    return blob.words.count(word)
+
+def n_containing(word, bloblist):
+    return sum(1 for blob in bloblist if word in blob.words)
+
+def idf(word, bloblist):
+    return math.log(len(bloblist) / (1 + n_containing(word, bloblist)))
+
+def tfidf(word, blob ,bloblist):
+    return tf(word, blob)  * idf(word,bloblist)
+
+
+
+def find_track_textv(input_text):
+    from textblob import TextBlob as tb
+
+    input_text = input_text.lower()
+    words = input_text.split()
+
+    mask = song_text_df['text'].str.contains('|'.join(words), case=False,na=False)
+    filtered_df = song_text_df[mask]
+
+    if filtered_df.dropna().empty:
+        print("No songs with this words")
+        return None
+
+    if len(words) == 0:
+        print('No words to search')
+        return None
+
+    bloblist = [tb(text) for text in filtered_df['text'].fillna('')]
+
+    best_score = -1
+    best_index = None
+
+    for idx, blob in enumerate(bloblist):
+        score = 0
+        for word in words:
+            score += tfidf(word,blob,bloblist)
+        if score > best_score:
+            best_score = score
+            best_index = idx
+
+    if best_score is not None:
+        print(f"Best match found: {filtered_df.iloc[best_index]['song']}")
+        return df_for_similarity_algo.loc[best_index]
+    else:
+        print("No song found")
+        return None
+
 #------------------------------------------------------------
 # Step 3: Searching for songs with similar sound (using scikit-learn)
 #-------------------------------------------------------------
@@ -85,30 +141,22 @@ def find_similar_song(characteristics):
 
 
 ### - - - - - - Calling Functions[0.1V] - - - - - - -
-track_row = find_track(GetUser_TrackName())
+user_input = Get_User_Input()
+
+track_row = None
+text_row = None
+
+if len(user_input) < 25:
+    track_row = find_track(user_input)
+else:
+    text_row = find_track_textv(user_input)
+
 if track_row is not None:
     Song_index_list = []
     for index, value in find_similar_song(track_row).items():
         Song_index_list.append(index)
-        Result_list = []
+    Result_list = []
     for index in Song_index_list:
         Result_list.append(df_for_work_with_track['track_name'].loc[index])
-    print(*Result_list , sep=' , ')
+    print(*Result_list, sep=' , ')
 # - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-
-#-----------------------------------------
-#   TF-IDF algorithm
-#-----------------------------------------
-
-def tf(word,blob):
-    return blob.words.count(word)
-
-def n_containing(word, bloblist):
-    return sum(1 for blob in bloblist if word in blob.words)
-
-def idf(word, bloblist):
-    return math.log(len(bloblist) / (1 + n_containing(word, bloblist)))
-
-def tfidf(word, blob ,bloblist):
-    return tf(word, blob)  * idf(word,bloblist)

@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from SearchingScript import *
-from TFIDF import *
 
 app = FastAPI()
 
