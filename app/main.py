@@ -1,15 +1,16 @@
-from email import message
-
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.responses import Response, FileResponse
-from app.SearchingScript import find_track, find_similar_song, df_for_similarity_algo, df_for_work_with_track
+from app.SearchingScript import find_track, find_similar_song, df_for_work_with_track
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return FileResponse("frontend/index.html")
 
 @app.get("/search")
 def search(track_name: str, artist: str=None):
@@ -42,12 +43,12 @@ def recommend(track_name: str, artist: str=None):
     similar_names = df_for_work_with_track.loc[similar_indices, 'track_name'].tolist()
     similar_artists = df_for_work_with_track.loc[similar_indices, 'artists'].tolist()
 
-    recomendations = [
+    recommendations = [
         {"track" : name, "artist" : artist}
         for name, artist in zip(similar_names, similar_artists)
     ]
 
-    return {"recommendations: ":recomendations}
+    return {"recommendations: ":recommendations}
 
 @app.get("/health")
 def health():
