@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler as MM_scale
 # Step 1: Creating and Reforming DataFrame
 #----------------------------------------------
 #reforming data set for more flexibility for future
-df = pd.read_csv('spotify_dataset.csv')
+df = pd.read_csv('app/spotify_dataset.csv')
 df_for_similarity_algo = df.drop(['Unnamed: 0','track_id','track_genre','artists','album_name','track_name','explicit','duration_ms','time_signature'],axis=1).apply(pd.to_numeric)
 df_for_work_with_track = df.drop(['Unnamed: 0','track_id','time_signature','duration_ms','popularity'],axis=1)
 track_genre = df['track_genre']
@@ -42,15 +42,14 @@ def find_track(track_name):
     for index, i in enumerate(character_data):
         print(index+1, i)
     if len(character_data) > 1:
-        print('We found some artists with similar song name! Please choose what artist do you mean: ')
-        artist_user_chose = character_data[int(input(f'Select an artist: from 1-{len(character_data)}: ')) - 1]
-        print(f'{artist_user_chose} --- {track_name}')
-
+        return {"multiple_matches": character_data}
+        #print('We found some artists with similar song name! Please choose what artist do you mean: ')
+        #artist_user_chose = character_data[int(input(f'Select an artist: from 1-{len(character_data)}: ')) - 1]
+        #print(f'{artist_user_chose} --- {track_name}')
     # - Search by artist name
-
-        data_list = data_list[(data_list['artists'].str.lower() == artist_user_chose.lower())]
-        data_list = data_list.head(1)
-        return df_for_similarity_algo.loc[data_list.index]
+        #data_list = data_list[(data_list['artists'].str.lower() == artist_user_chose.lower())]
+        #data_list = data_list.head(1)
+        #return df_for_similarity_algo.loc[data_list.index]
 
     elif len(character_data) == 1:   # - Fix this (remake by other more user-choice friendly method)
         artist_user_chose = character_data[0]
@@ -76,17 +75,3 @@ def find_similar_song(characteristics):
     cos = pd.Series(cos, index=filtered_scaled.index).drop(characteristics.index,errors='ignore')
     cos = cos.sort_values(ascending=False)
     return cos.head(5)
-
-
-### - - - - - - Calling Functions[0.1V] - - - - - - -
-track_row = find_track(Get_User_Input())
-
-if track_row is not None:
-    Song_index_list = []
-    for index, value in find_similar_song(track_row).items():
-        Song_index_list.append(index)
-    Result_list = []
-    for index in Song_index_list:
-        Result_list.append(df_for_work_with_track['track_name'].loc[index])
-    print(*Result_list, sep=' , ')
-# - - - - - - - - - - - - - - - - - - - - - - - - - - -
