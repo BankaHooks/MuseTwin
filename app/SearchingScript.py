@@ -45,15 +45,16 @@ def find_track(track_name, artist=None):
     # - User choose a correct artist
     for index, i in enumerate(character_data):
         print(index+1, i)
+
     if len(character_data) > 1:
-        return {"multiple_matches": character_data}
-        #print('We found some artists with similar song name! Please choose what artist do you mean: ')
-        #artist_user_chose = character_data[int(input(f'Select an artist: from 1-{len(character_data)}: ')) - 1]
-        #print(f'{artist_user_chose} --- {track_name}')
-    # - Search by artist name
-        #data_list = data_list[(data_list['artists'].str.lower() == artist_user_chose.lower())]
-        #data_list = data_list.head(1)
-        #return df_for_similarity_algo.loc[data_list.index]
+        matches = []
+        for artist_name in character_data:
+            match_row = data_list[data_list['artists'].str.lower() == artist_name.lower()].iloc[0]
+            matches.append({
+                "track_name": match_row['track_name'],
+                "artist": artist_name
+            })
+        return {"multiple_matches": matches}
 
     elif len(character_data) == 1:   # - Fix this (remake by other more user-choice friendly method)
         artist_user_chose = character_data[0]
