@@ -45,8 +45,6 @@ Uvicorn
 ☑ Core recommendation engine (cosine similarity)
 ☑ FastAPI REST API
 ☑ Basic HTML UI
-□ TF-IDF text search
-□ Vector search (FAISS)
 □ Deployment on Render
 --------------------------------------
 ***Made by***
