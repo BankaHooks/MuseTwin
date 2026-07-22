@@ -24,13 +24,17 @@ def Get_User_Input():  # - Collect Song name or a text from song
     user_request =  input('Give us a song name to search: ')
     return user_request
 
-def find_track(track_name):
-    character_data = []
+def find_track(track_name, artist=None):
     track_name = track_name.lower()
-
-    # Clear data_list from rows withou current song name
-
     data_list = df_for_work_with_track[df_for_work_with_track['track_name'].str.contains(track_name,regex=False,case=False)]
+
+    if artist is not None:
+        data_list = data_list[(data_list['artists'].str.lower() == artist.lower())]
+        if data_list.empty:
+            return None
+        return df_for_similarity_algo.loc[data_list.head(1).index]
+
+    character_data = []
     if data_list.dropna().empty:
         print('Error!')
     for index, row in data_list.iterrows():
