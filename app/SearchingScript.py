@@ -2,27 +2,16 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity as cos_sim
 from sklearn.preprocessing import MinMaxScaler as MM_scale
-import math
-#from sklearn.feature_extraction.text import TfidfVectorizer
 
 #----------------------------------------------
 # Step 1: Creating and Reforming DataFrame
 #----------------------------------------------
 #reforming data set for more flexibility for future
 df = pd.read_csv('spotify_dataset.csv')
-song_text_df = pd.read_csv('spotify_millsongdata.csv').drop(columns=['link'])
 df_for_similarity_algo = df.drop(['Unnamed: 0','track_id','track_genre','artists','album_name','track_name','explicit','duration_ms','time_signature'],axis=1).apply(pd.to_numeric)
 df_for_work_with_track = df.drop(['Unnamed: 0','track_id','time_signature','duration_ms','popularity'],axis=1)
-#df_for_search = df.drop(['Unnamed: 0', 'popularity', 'duration_ms', 'explicit', 'danceability', 'energy',
-#                        'key', 'loudness', 'mode', 'speechiness', 'acousticness',
-#                        'instrumentalness', 'liveness', 'valence', 'tempo', 'time_signature',
-#                        'track_genre'],axis=1)
-#df_for_search = df_for_search['track_name'].str.lower()
 track_genre = df['track_genre']
 
-# - Vectorizing for all texts
-#vectorizer = TfidfVectorizer(stop_words='english')
-#tfidf_matrix = vectorizer.fit_transform(song_text_df['text'].fillna(''))
 
 scaler = MM_scale()
 scaled_df = scaler.fit_transform(df_for_similarity_algo)
@@ -73,90 +62,24 @@ def find_track(track_name):
         print("Ooops, it`s look like we didn`t found this song!... Sorry")
         return None
 
-#-----------------------------------------
-#   TF-IDF algorithm
-#-----------------------------------------
-
-# tf(word,blob):
-    #return blob.words.count(word)
-
-#def n_containing(word, bloblist):
-    #return sum(1 for blob in bloblist if word in blob.words)
-
-#def idf(word, bloblist):
-    #return math.log(len(bloblist) / (1 + n_containing(word, bloblist)))
-
-#def tfidf(word, blob ,bloblist):
-    #return tf(word, blob)  * idf(word,bloblist)
-
-
-
-#def find_track_textv(input_text):
-    ### - Old TF-IDF script (takes (O(n*m) times)
-    # from textblob import TextBlob as tb
-    #
-    # input_text = input_text.lower()
-    # words = input_text.split()
-    #
-    # mask = song_text_df['text'].str.contains('|'.join(words), case=False,na=False)
-    # filtered_df = song_text_df[mask]
-    #
-    # if filtered_df.dropna().empty:
-    #     print("No songs with this words")
-    #     return None
-    #
-    # if len(words) == 0:
-    #     print('No words to search')
-    #     return None
-    #
-    # bloblist = [tb(text) for text in filtered_df['text'].fillna('')]
-    #
-    # best_score = -1
-    # best_index = None
-    #
-    # for idx, blob in enumerate(bloblist):
-    #     score = 0
-    #     for word in words:
-    #         score += tfidf(word,blob,bloblist)
-    #     if score > best_score:
-    #         best_score = score
-    #         best_index = idx
-    #
-    # if best_score is not None:
-    #     print(f"Best match found: {filtered_df.iloc[best_index]['song']}")
-    #     return df_for_similarity_algo.loc[best_index]
-    # else:
-    #     print("No song found")
-    #     return None
-    #input_tfidf = vectorizer.transform([input_text])
-    #scores = (tfidf_matrix * input_tfidf.T).toarray().flatten()
-    #best_index = scores.argmax()
-    #return df_for_similarity_algo.loc[best_index]
-
 #------------------------------------------------------------
 # Step 3: Searching for songs with similar sound (using scikit-learn)
 #-------------------------------------------------------------
 def find_similar_song(characteristics):
-    seed_genre = df.loc[track_row.index[0] , 'track_genre']
+    seed_genre = df.loc[characteristics.index[0] , 'track_genre']
     same_genre_mask = df['track_genre'] == seed_genre
     search_df = df_for_similarity_algo[same_genre_mask]
     filtered_scaled = scaled_df[same_genre_mask]
     scaled_characteristics = scaler.transform(characteristics)
     cos = cos_sim(scaled_characteristics,filtered_scaled.values)
     cos = cos.flatten().tolist()
-    cos = pd.Series(cos, index=filtered_scaled.index).drop(track_row.index,errors='ignore')
+    cos = pd.Series(cos, index=filtered_scaled.index).drop(characteristics.index,errors='ignore')
     cos = cos.sort_values(ascending=False)
     return cos.head(5)
 
 
 ### - - - - - - Calling Functions[0.1V] - - - - - - -
 track_row = find_track(Get_User_Input())
-#text_row = None
-
-#if len(user_input) < 25:
-    #track_row = find_track(user_input)
-#else:
-    #text_row = find_track_textv(user_input)
 
 if track_row is not None:
     Song_index_list = []
