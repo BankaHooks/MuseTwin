@@ -52,3 +52,6 @@ Uvicorn
 ***Made by***
 Daniel Kruchkov.
 Software Engineer, building products with AI inside.
+
+License
+MIT — free to use, modify, and share.
