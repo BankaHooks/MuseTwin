@@ -10,4 +10,6 @@ Stack by the moment:
 2)Deploy: Git, 
 3)Backend: Python, FastAPI
 
+Requestions to work with:
+FastAPI; Pandas; Numpy; Uvcorn
 Made by Daniel Kruchkov
