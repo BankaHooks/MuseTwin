@@ -45,7 +45,7 @@ Uvicorn
 ☑ Core recommendation engine (cosine similarity)
 ☑ FastAPI REST API
 ☑ Basic HTML UI
-□ Deployment on Render
+□ Add TF-IDF and think about future of project
 --------------------------------------
 ***Made by***
 Daniel Kruchkov.
